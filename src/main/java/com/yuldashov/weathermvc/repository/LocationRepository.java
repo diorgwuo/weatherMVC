@@ -1,6 +1,6 @@
 package com.yuldashov.weathermvc.repository;
 
-import com.yuldashov.weathermvc.models.Location;
+import com.yuldashov.weathermvc.model.Location;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

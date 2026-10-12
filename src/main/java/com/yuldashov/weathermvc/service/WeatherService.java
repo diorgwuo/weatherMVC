@@ -8,6 +8,7 @@ import java.util.Arrays;
 import com.yuldashov.weathermvc.dto.WeatherDTO;
 import com.yuldashov.weathermvc.dto.WeatherResponse;
 import com.yuldashov.weathermvc.exception.NotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -19,11 +20,11 @@ import java.util.Arrays;
 public class WeatherService {
     private final WebClient weatherWebClient;
     private final WebClient geoWebClient;
-    private final String apiKey = "95372ef7679b115bab75e92ac2c6d8d8";
+    private final String apiKey = "${api.key}";
 
     @Autowired
-    public WeatherService(@Qualifier("weatherWebClient") WebClient weatherWebClient,
-                          @Qualifier("geoWebClient") WebClient geoWebClient) {
+    public WeatherService( WebClient weatherWebClient,
+                           WebClient geoWebClient) {
         this.weatherWebClient = weatherWebClient;
         this.geoWebClient = geoWebClient;
     }
@@ -42,13 +43,12 @@ public class WeatherService {
                 .block();
 
         if (response!=null) {
-            WeatherDTO weather = new WeatherDTO();
-            weather.setLat(response.getCoord().getLat());
-            weather.setLon(response.getCoord().getLon());
-            weather.setName(response.getName());
-            weather.setTemp(response.getMain().getTemp());
-            weather.setMain(response.getWeather()[0].getMain());
-            return weather;
+            return new WeatherDTO(response.getName(),
+                    response.getCoord().getLat(),
+                    response.getCoord().getLon(),
+                    response.getWeather()[0].getMain(),
+                    response.getMain().getTemp()
+                    );
         }
         throw new NotFoundException("Not found place with coord");
     }

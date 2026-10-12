@@ -1,30 +1,25 @@
-package com.yuldashov.weathermvc.controllers;
+package com.yuldashov.weathermvc.controller;
 
 import com.yuldashov.weathermvc.dto.LocationDTO;
 import com.yuldashov.weathermvc.dto.WeatherDTO;
 
 import java.math.BigDecimal;
 import java.util.List;
-import com.yuldashov.weathermvc.exception.ErrorResponse;
-import com.yuldashov.weathermvc.exception.NotFoundException;
+
 import com.yuldashov.weathermvc.exception.UnauthorizedException;
 import com.yuldashov.weathermvc.service.SessionService;
 import com.yuldashov.weathermvc.service.WeatherService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 public class WeatherController {
-    private WeatherService weatherService;
-    private SessionService sessionService;
-
-    @Autowired
-    public WeatherController(WeatherService weatherService, SessionService sessionService) {
-        this.weatherService = weatherService;
-        this.sessionService = sessionService;
-    }
+    private final WeatherService weatherService;
+    private final SessionService sessionService;
 
     @GetMapping("/api/weather")
     public ResponseEntity<?> getWeatherByCoord (
@@ -36,7 +31,7 @@ public class WeatherController {
             WeatherDTO response = weatherService.getWeatherByCoord(lat, lon);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        throw new UnauthorizedException("Not authorized");
+        throw new UnauthorizedException();
     }
 
     @GetMapping("/api/weather/search")
@@ -48,6 +43,6 @@ public class WeatherController {
             List<LocationDTO> response = weatherService.getWeatherByName(q);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-        throw new UnauthorizedException("Not authorized");
+        throw new UnauthorizedException();
     }
 }

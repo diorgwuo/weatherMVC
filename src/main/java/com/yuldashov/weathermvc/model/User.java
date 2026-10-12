@@ -1,14 +1,15 @@
-package com.yuldashov.weathermvc.models;
+package com.yuldashov.weathermvc.model;
 
 import jakarta.persistence.*;
-import org.springframework.stereotype.Component;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.annotation.processing.Generated;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,10 +18,10 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user")
-    private List<Location> locations;
+    private List<Location> location;
 
     @OneToMany(mappedBy = "user")
-    private List<Session> sessions;
+    private List<Session> session;
 
     public User() {
     }
@@ -28,7 +29,7 @@ public class User {
     public User(String login,String password) {
         this.login = login;
         this.password = password;
-        locations = new ArrayList<>();
+        location = new ArrayList<>();
     }
 
     public int getId() {

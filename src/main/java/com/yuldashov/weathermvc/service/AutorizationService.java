@@ -1,42 +1,52 @@
 package com.yuldashov.weathermvc.service;
 
-import com.yuldashov.weathermvc.models.Session;
-import com.yuldashov.weathermvc.models.User;
-import com.yuldashov.weathermvc.repository.SessionRepository;
+import com.yuldashov.weathermvc.exception.NotFoundException;
+import com.yuldashov.weathermvc.model.User;
 import com.yuldashov.weathermvc.repository.UserRepository;
-import com.yuldashov.weathermvc.security.PasswordCheck;
-import com.yuldashov.weathermvc.security.PasswordHashHandler;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class AutorizationService {
-    private final SessionRepository sessionRepository;
     private final UserRepository userRepository;
-    private final PasswordHashHandler passwordHashHandler;
-    private final PasswordCheck passwordCheck;
-
-    @Autowired
-    public AutorizationService(SessionRepository sessionRepository, UserRepository userRepository,
-                               PasswordHashHandler passwordHashHandler, PasswordCheck passwordCheck) {
-        this.sessionRepository = sessionRepository;
-        this.userRepository = userRepository;
-        this.passwordCheck = passwordCheck;
-        this.passwordHashHandler = passwordHashHandler;
-    }
+    private final PasswordEncoder passwordEncoder;
+    private final SessionService sessionService;
 
     public User register(User user) {
         String login = user.getLogin();
         String password = user.getPassword();
-        String hashPassword = passwordHashHandler.hashPassword(password);
-
-        User userToSave = new User();
-        userToSave.setLogin(login);
-        userToSave.setPassword(hashPassword);
+        String hashPassword = passwordEncoder.encode(password);
+        User userToSave = new User(login, hashPassword);
         return userRepository.save(userToSave);
+    }
+
+    @Transactional
+    public void login(String login, String password, HttpServletResponse response) {
+        Instant now = Instant.now();
+        User user = userRepository.findByLogin(login)
+                .orElseThrow(() -> new NotFoundException("Такой пользователь не найден"));
+        UUID id;
+        if (user == null) {
+            throw new RuntimeException("User not found" + login);
+        }
+        if (passwordEncoder.matches(user.getPassword(), password)) {
+            id = sessionService.create(now, user);
+            Cookie cookie = new Cookie("sessionID", id.toString());
+            response.addCookie(cookie);
+        } else {
+            throw new RuntimeException("Не подходит пароль");
+        }
     }
 
 }
