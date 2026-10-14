@@ -19,30 +19,21 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class WeatherController {
     private final WeatherService weatherService;
-    private final SessionService sessionService;
 
     @GetMapping("/api/weather")
-    public ResponseEntity<?> getWeatherByCoord (
+    @ResponseStatus(HttpStatus.OK)
+    public WeatherDTO getWeatherByCoord(
             @RequestParam BigDecimal lat,
             @RequestParam BigDecimal lon,
             @CookieValue(value = "sessionID", required = false) String sessionID) {
-
-        if (sessionService.checkSession(sessionID)) {
-            WeatherDTO response = weatherService.getWeatherByCoord(lat, lon);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        throw new UnauthorizedException();
+        return weatherService.getWeatherByCoord(sessionID, lat, lon);
     }
 
     @GetMapping("/api/weather/search")
-    public ResponseEntity<?> getWeatherByName (
+    @ResponseStatus(HttpStatus.OK)
+    public List<LocationDTO> getWeatherByName(
             @CookieValue(value = "sessionID", required = false) String sessionID,
             @RequestParam String q) {
-
-        if (sessionService.checkSession(sessionID)) {
-            List<LocationDTO> response = weatherService.getWeatherByName(q);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        throw new UnauthorizedException();
+        return weatherService.getWeatherByName(sessionID, q);
     }
 }

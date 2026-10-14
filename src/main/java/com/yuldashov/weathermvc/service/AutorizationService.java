@@ -6,14 +6,11 @@ import com.yuldashov.weathermvc.repository.UserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -22,7 +19,9 @@ public class AutorizationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
+    private static final String SESSION_COOKIE = "sessionID";
 
+    @Transactional
     public User register(User user) {
         String login = user.getLogin();
         String password = user.getPassword();
@@ -37,12 +36,9 @@ public class AutorizationService {
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new NotFoundException("Такой пользователь не найден"));
         UUID id;
-        if (user == null) {
-            throw new RuntimeException("User not found" + login);
-        }
         if (passwordEncoder.matches(user.getPassword(), password)) {
             id = sessionService.create(now, user);
-            Cookie cookie = new Cookie("sessionID", id.toString());
+            Cookie cookie = new Cookie(SESSION_COOKIE, id.toString());
             response.addCookie(cookie);
         } else {
             throw new RuntimeException("Не подходит пароль");

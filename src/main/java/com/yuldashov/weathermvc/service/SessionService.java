@@ -17,9 +17,10 @@ public class SessionService {
     private static final Duration SESSION_TTL = Duration.ofMinutes(60);
     private final SessionRepository sessionRepository;
 
+    @Transactional
     public UUID create(Instant now, User user) {
         if (sessionRepository.existsByUserAndExpiresAtAfter(user, now)) {
-            return sessionRepository.findSessionByUser(user, now).get().getId();
+            return sessionRepository.findSessionByUserAndExpiresAt(user, now).get().getId();
         } else {
             Session session = new Session();
             session.setExpiresAt(now.plus(SESSION_TTL));

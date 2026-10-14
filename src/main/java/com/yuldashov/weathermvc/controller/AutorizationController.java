@@ -1,5 +1,6 @@
 package com.yuldashov.weathermvc.controller;
 
+import com.yuldashov.weathermvc.dto.LoginDTO;
 import com.yuldashov.weathermvc.model.User;
 import com.yuldashov.weathermvc.service.AutorizationService;
 import com.yuldashov.weathermvc.service.SessionService;
@@ -29,7 +30,7 @@ public class AutorizationController {
 
     @PostMapping(value = "/login")
     @ResponseStatus(HttpStatus.OK)
-    public void login(@RequestBody User user, HttpServletResponse response) {
-        autorizationService.login(user.getLogin(), user.getPassword(), response);
+    public void login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+        autorizationService.login(loginDTO.login(), loginDTO.password(), response);
     }
 }
