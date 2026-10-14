@@ -18,10 +18,7 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     boolean existsByUserAndExpiresAtAfter(User user, Instant now);
 
     @Query("SELECT s FROM Session s WHERE s.user = :user AND s.expiresAt > :now")
-    Optional<Session> findSessionByUser(@Param("user") User user, @Param("now") Instant now);
-
-    @Query("SELECT COUNT(s)>0 FROM Session s WHERE s.id = :id AND s.expiresAt > :now")
-    boolean checkSessionById(@Param("id") UUID id, @Param("now") LocalDateTime now);
+    Optional<Session> findSessionByUserAndExpiresAt(@Param("user") User user, @Param("now") Instant now);
 
     Optional<Session> findById(UUID id);
 
