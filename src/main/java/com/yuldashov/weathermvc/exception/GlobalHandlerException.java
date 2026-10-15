@@ -11,10 +11,7 @@ public class GlobalHandlerException {
     @ExceptionHandler(PasswordException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handlePasswordException(PasswordException e) {
-
-        return new ErrorResponse(
-                "Not found user with password",
-                e.getMessage());
+        return new ErrorResponse("Not found user with password", e.getMessage());
     }
 
     @ExceptionHandler(NotFoundException.class)

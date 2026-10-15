@@ -1,4 +1,4 @@
-package com.yuldashov.weathermvc.dto;
+package com.yuldashov.weathermvc.dto.location;
 
 
 import java.math.BigDecimal;

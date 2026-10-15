@@ -18,15 +18,14 @@ public class SessionService {
     private final SessionRepository sessionRepository;
 
     @Transactional
-    public UUID create(Instant now, User user) {
+    public UUID getOrCreate(Instant now, User user) {
         if (sessionRepository.existsByUserAndExpiresAtAfter(user, now)) {
             return sessionRepository.findSessionByUserAndExpiresAt(user, now).get().getId();
         } else {
             Session session = new Session();
             session.setExpiresAt(now.plus(SESSION_TTL));
             session.setUser(user);
-            sessionRepository.save(session);
-            return session.getId();
+            return sessionRepository.save(session).getId();
         }
     }
 

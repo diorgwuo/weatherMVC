@@ -1,5 +1,6 @@
 package com.yuldashov.weathermvc.service;
 
+import com.yuldashov.weathermvc.dto.auth.LoginRequest;
 import com.yuldashov.weathermvc.exception.NotFoundException;
 import com.yuldashov.weathermvc.model.User;
 import com.yuldashov.weathermvc.repository.UserRepository;
@@ -13,31 +14,28 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
+import static com.yuldashov.weathermvc.util.CoockieConstant.SESSION_COOKIE;
+
 @Service
 @RequiredArgsConstructor
 public class AutorizationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SessionService sessionService;
-    private static final String SESSION_COOKIE = "sessionID";
 
     @Transactional
-    public User register(User user) {
-        String login = user.getLogin();
-        String password = user.getPassword();
-        String hashPassword = passwordEncoder.encode(password);
-        User userToSave = new User(login, hashPassword);
-        return userRepository.save(userToSave);
+    public void register(LoginRequest loginRequest) {
+        String hashPassword = passwordEncoder.encode(loginRequest.password());
+        User userToSave = new User(loginRequest.login(), hashPassword);
+        userRepository.save(userToSave);
     }
 
     @Transactional
     public void login(String login, String password, HttpServletResponse response) {
-        Instant now = Instant.now();
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new NotFoundException("Такой пользователь не найден"));
-        UUID id;
         if (passwordEncoder.matches(user.getPassword(), password)) {
-            id = sessionService.create(now, user);
+            UUID id = sessionService.getOrCreate(Instant.now(), user);
             Cookie cookie = new Cookie(SESSION_COOKIE, id.toString());
             response.addCookie(cookie);
         } else {

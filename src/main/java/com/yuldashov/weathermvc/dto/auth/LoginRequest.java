@@ -1,9 +1,9 @@
-package com.yuldashov.weathermvc.dto;
+package com.yuldashov.weathermvc.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record LoginDTO(
+public record LoginRequest(
         @NotBlank(message = "Login не может быть пустым")
         @Size(min = 4, max = 20, message = "Login должен содержать от 4 до 20 символов")
         String login,

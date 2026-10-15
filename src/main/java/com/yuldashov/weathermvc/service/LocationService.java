@@ -1,6 +1,8 @@
 package com.yuldashov.weathermvc.service;
 
-import com.yuldashov.weathermvc.dto.*;
+import com.yuldashov.weathermvc.dto.location.LocationRequest;
+import com.yuldashov.weathermvc.dto.location.LocationResponse;
+import com.yuldashov.weathermvc.dto.weather.WeatherResponse;
 import com.yuldashov.weathermvc.exception.UnauthorizedException;
 import com.yuldashov.weathermvc.model.Location;
 import com.yuldashov.weathermvc.model.User;
@@ -22,43 +24,39 @@ public class LocationService {
 
     @Transactional
     public void save(String sessionID, LocationRequest request) {
-        if (sessionService.checkSession(sessionID)) {
-            User user = sessionService.findBySessionID(sessionID);
-            Location locationSave = new Location();
-            locationSave.setName(request.name());
-            locationSave.setLatitude(request.lat());
-            locationSave.setLongitude(request.lon());
-            locationSave.setUser(user);
-            locationRepository.save(locationSave);
-        } else {
+        if (!sessionService.checkSession(sessionID)) {
             throw new UnauthorizedException();
         }
+        User user = sessionService.findBySessionID(sessionID);
+        Location locationSave = new Location();
+        locationSave.setName(request.name());
+        locationSave.setLatitude(request.lat());
+        locationSave.setLongitude(request.lon());
+        locationSave.setUser(user);
+        locationRepository.save(locationSave);
     }
 
     @Transactional
     public void delete(String sessionID, int id) {
-        if (sessionService.checkSession(sessionID)) {
-            locationRepository.deleteById(id);
-        } else {
+        if (!sessionService.checkSession(sessionID)) {
             throw new UnauthorizedException();
         }
+        locationRepository.deleteById(id);
     }
 
-    @Transactional
     public List<LocationResponse> showLocations(String sessionID) {
-        if (sessionService.checkSession(sessionID)) {
-            User user = sessionService.findBySessionID(sessionID);
-            return locationRepository.findByUser(user).stream()
-                    .map(location -> {
-                        BigDecimal lat = location.getLatitude();
-                        BigDecimal lon = location.getLongitude();
-                        WeatherDTO weather = weatherService.getWeatherByCoord(sessionID, lat, lon);
-                        double temp = weather.temp();
-                        return new LocationResponse(location.getName(), temp);
-                    })
-                    .collect(Collectors.toList());
-        } else {
+        if (!sessionService.checkSession(sessionID)) {
             throw new UnauthorizedException();
         }
+        User user = sessionService.findBySessionID(sessionID);
+        return locationRepository.findByUser(user).stream()
+                .map(location -> {
+                    BigDecimal lat = location.getLatitude();
+                    BigDecimal lon = location.getLongitude();
+                    WeatherResponse weather = weatherService.getWeatherByCoord(sessionID, lat, lon);
+                    double temp = weather.temp();
+                    return new LocationResponse(location.getName(), temp);
+                })
+                .collect(Collectors.toList());
     }
 }
