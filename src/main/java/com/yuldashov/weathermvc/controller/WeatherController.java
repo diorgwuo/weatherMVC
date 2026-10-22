@@ -18,7 +18,6 @@ import static com.yuldashov.weathermvc.util.CoockieConstant.SESSION_COOKIE;
 
 @RestController
 @RequiredArgsConstructor
-@Validated
 @RequestMapping("/weather")
 public class WeatherController {
     private final WeatherService weatherService;

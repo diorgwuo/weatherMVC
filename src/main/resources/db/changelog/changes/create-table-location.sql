@@ -11,4 +11,4 @@ create table location
     user_id   int     not null references users(id)
 );
 
---rollback drop table locationl;
+--rollback drop table location;

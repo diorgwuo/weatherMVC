@@ -11,6 +11,7 @@ import com.yuldashov.weathermvc.dto.weather.WeatherApiResponse;
 import com.yuldashov.weathermvc.exception.NotFoundException;
 import com.yuldashov.weathermvc.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -20,7 +21,8 @@ public class WeatherService {
     private final WebClient weatherWebClient;
     private final WebClient geoWebClient;
     private final SessionService sessionService;
-    private final String apiKey = "${api.key}";
+    @Value("${api.key}")
+    private String apiKey;
 
     public WeatherResponse getWeatherByCoord(String sessionID, BigDecimal lat, BigDecimal lon) {
         if (!sessionService.checkSession(sessionID)) {
@@ -45,7 +47,7 @@ public class WeatherService {
                     response.getMain().getTemp()
             );
         }
-        throw new NotFoundException("Not found place with coord");
+        throw new NotFoundException("Не нашли город с такими координатами: lat - " + lat + " lon - " + lon);
     }
 
     public List<LocationApiResponse> getWeatherByName(String sessionID, String name) {
@@ -65,6 +67,6 @@ public class WeatherService {
         if (response != null) {
             return Arrays.asList(response);
         }
-        throw new NotFoundException("Not found place by name");
+        throw new NotFoundException("Не нашли город с таким именем: " + name);
     }
 }

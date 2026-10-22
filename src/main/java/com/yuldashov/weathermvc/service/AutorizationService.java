@@ -33,13 +33,13 @@ public class AutorizationService {
     @Transactional
     public void login(String login, String password, HttpServletResponse response) {
         User user = userRepository.findByLogin(login)
-                .orElseThrow(() -> new NotFoundException("Такой пользователь не найден"));
-        if (passwordEncoder.matches(user.getPassword(), password)) {
+                .orElseThrow(() -> new NotFoundException("Пользователь с таким логином: " + login + " не найден" ));
+        if (passwordEncoder.matches(password, user.getPassword())) {
             UUID id = sessionService.getOrCreate(Instant.now(), user);
             Cookie cookie = new Cookie(SESSION_COOKIE, id.toString());
             response.addCookie(cookie);
         } else {
-            throw new RuntimeException("Не подходит пароль");
+            throw new RuntimeException("Неверный пароль");
         }
     }
 

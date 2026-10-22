@@ -53,9 +53,10 @@ public class LocationService {
                 .map(location -> {
                     BigDecimal lat = location.getLatitude();
                     BigDecimal lon = location.getLongitude();
+                    int id = location.getId();
                     WeatherResponse weather = weatherService.getWeatherByCoord(sessionID, lat, lon);
                     double temp = weather.temp();
-                    return new LocationResponse(location.getName(), temp);
+                    return new LocationResponse(location.getName(), temp, id);
                 })
                 .collect(Collectors.toList());
     }
